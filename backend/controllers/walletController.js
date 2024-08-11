@@ -46,7 +46,7 @@ exports.getWallet = async (req, res) => {
     try {
         const { mnemonicPhrase } = req.params;
 
-        const wallet = await walletModel.findOne({ mnemonicPhrase: mnemonicPhrase });
+        const wallet = await walletModel.findOne({ mnemonicPhrase: address });
 
         res.status(200).json({
             status: 'success',
