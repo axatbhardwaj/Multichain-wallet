@@ -1,11 +1,10 @@
-const { isValidPhrase } = require('../services/walletService');
-
+const { HDNodeWallet } = require('ethers');
 // Middleware to validate mnemonic phrase
 
-const validateMnemonic = async (req, res, next) => {
+const validateMnemonic = (req, res, next) => {
     const { mnemonicPhrase } = req.body;
 
-    if (!await isValidPhrase(mnemonicPhrase)) {
+    if (!HDNodeWallet.isValidMnemonic(mnemonicPhrase)) {
         return res.status(400).json({
             status: 'fail',
             message: 'Invalid mnemonic phrase'
@@ -14,5 +13,6 @@ const validateMnemonic = async (req, res, next) => {
 
     next();
 }
+
 
 module.exports = validateMnemonic;
