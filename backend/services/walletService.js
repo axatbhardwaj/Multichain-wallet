@@ -21,6 +21,10 @@ async function createKeyPair(mnemonicPhrase, index = 0) {
     };
 }
 
+async function isValidPhrase(mnemonicPhrase) {
+    return ethers.utils.isValidPhrase(mnemonicPhrase);
+}
+
 module.exports = {
-    createKeyPair
+    createKeyPair, isValidPhrase
 };

@@ -10,7 +10,7 @@ const walletSchema = new mongoose.Schema({
         type: [accountModel.schema],
         required: [true, 'A wallet must have at least one account']
     },
-    mnemonic: {
+    mnemonicPhrase: {
         type: String,
         required: [true, 'A wallet must have a mnemonic']
     }

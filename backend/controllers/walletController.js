@@ -4,119 +4,160 @@ const { createKeyPair } = require('../services/walletService');
 
 // Create a new wallet
 exports.createWallet = async (req, res) => {
-    const generatedWallet = await createKeyPair();
+    try {
+        const generatedWallet = await createKeyPair();
 
-    const address = generatedWallet.address;
-    const publicKey = generatedWallet.publicKey;
-    const privateKey = generatedWallet.privateKey;
-    const mnemonicPhrase = generatedWallet.mnemonicPhrase;
+        const address = generatedWallet.address;
+        const publicKey = generatedWallet.publicKey;
+        const privateKey = generatedWallet.privateKey;
+        const mnemonicPhrase = generatedWallet.mnemonicPhrase;
 
-    const account = await accountModel.create({
-        address: address,
-        publicKey: publicKey,
-        privateKey: privateKey
-    });
+        const account = await accountModel.create({
+            address: address,
+            publicKey: publicKey,
+            privateKey: privateKey
+        });
 
-    const newWallet = await walletModel.create({
-        numberOfAccounts: 1,
-        accounts: [account._id],
-        mnemonic: mnemonicPhrase
-    });
+        const newWallet = await walletModel.create({
+            numberOfAccounts: 1,
+            accounts: [account._id],
+            mnemonicPhrase: mnemonicPhrase
+        });
 
-    await newWallet.save();
+        await newWallet.save();
 
-    res.status(201).json({
-        status: 'success',
-        data: {
-            wallet: newWallet
-        }
-    });
+        res.status(201).json({
+            status: 'success',
+            data: {
+                wallet: newWallet
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'fail',
+            message: error
+        });
+    }
 }
 
 //return the wallet and its accounts
 exports.getWallet = async (req, res) => {
-    const { address } = req.params;
+    try {
+        const { mnemonicPhrase } = req.params;
 
-    const wallet = await walletModel.findOne({ mnemonic: address });
+        const wallet = await walletModel.findOne({ mnemonicPhrase: mnemonicPhrase });
 
-    res.status(200).json({
-        status: 'success',
-        data: {
-            wallet: wallet
-        }
-    });
+        res.status(200).json({
+            status: 'success',
+            data: {
+                wallet: wallet
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'fail',
+            message: error
+        });
+    }
 }
 
 exports.importWallet = async (req, res) => {
-    const { mnemonicPhrase } = req.body;
+    try {
+        const { mnemonicPhrase } = req.body;
 
-    const importedWallet = await createKeyPair(mnemonicPhrase);
+        const importedWallet = await createKeyPair(mnemonicPhrase);
 
-    //importedWallet.
+        const account = await accountModel.create({
+            address: importedWallet.address,
+            publicKey: importedWallet.publicKey,
+            privateKey: importedWallet.privateKey
+        });
 
-    const account = await accountModel.create({
-        address: importedWallet.address,
-        publicKey: importedWallet.publicKey,
-        privateKey: importedWallet.privateKey
-    });
+        const newWallet = await walletModel.create({
+            numberOfAccounts: 1,
+            accounts: [account._id],
+            mnemonicPhrase: mnemonicPhrase
+        });
 
-    const newWallet = await walletModel.create({
-        numberOfAccounts: 1,
-        accounts: [account._id],
-        mnemonic: mnemonicPhrase
-    });
+        await newWallet.save();
 
-    await newWallet.save();
-
-    res.status(201).json({
-        status: 'success',
-        data: {
-            wallet: newWallet
-        }
-    });
+        res.status(201).json({
+            status: 'success',
+            data: {
+                wallet: newWallet
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'fail',
+            message: error
+        });
+    }
 }
 
 exports.addAccount = async (req, res) => {
-    const { mnemonicPhrase } = req.body;
+    try {
 
-    const wallet = await walletModel.findOne({ mnemonic: mnemonicPhrase });
-    const numberOfAccounts = wallet.numberOfAccounts;
+        const { mnemonicPhrase } = req.body;
 
-    // fist account is at index 0
-    const index = numberOfAccounts;
+        const wallet = await walletModel.findOne({ mnemonicPhrase: mnemonicPhrase });
+        const numberOfAccounts = wallet.numberOfAccounts;
 
-    const newAccount = await createKeyPair(mnemonicPhrase, index);
+        // fist account is at index 0
+        const index = numberOfAccounts;
 
-    const address = newAccount.address;
-    const publicKey = newAccount.publicKey;
-    const privateKey = newAccount.privateKey;
+        const newAccount = await createKeyPair(mnemonicPhrase, index);
 
-    const account = await accountModel.create({
-        address: address,
-        publicKey: publicKey,
-        privateKey: privateKey
-    });
+        const address = newAccount.address;
+        const publicKey = newAccount.publicKey;
+        const privateKey = newAccount.privateKey;
 
-    const walletM = await walletModel.findOneAndUpdate({ mnemonic: mnemonic }, {
-        $inc: { numberOfAccounts: 1 },
-        $push: { accounts: account._id }
-    });
+        const account = await accountModel.create({
+            address: address,
+            publicKey: publicKey,
+            privateKey: privateKey
+        });
 
-    res.status(201).json({
-        status: 'success',
-        data: {
-            wallet: wallet
-        }
-    });
+        const walletM = await walletModel.findOneAndUpdate({ mnemonicPhrase: mnemonicPhrase }, {
+            $inc: { numberOfAccounts: 1 },
+            $push: { accounts: account._id }
+        });
+
+        res.status(201).json({
+            status: 'success',
+            data: {
+                wallet: wallet
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'fail',
+            message: error
+        });
+    }
 }
 
+
 exports.deleteWallet = async (req, res) => {
-    const { mnemonic } = req.body;
+    try {
+        const { mnemonicPhrase } = req.body;
 
-    const deleteWallet = await walletModel.findOneAndDelete({ mnemonic: mnemonic });
+        const deleteWallet = await walletModel.findOneAndDelete({ mnemonicPhrase: mnemonicPhrase });
 
-    res.status(204).json({
-        status: 'success',
-        data: null
-    });
+        res.status(204).json({
+            status: 'success',
+            data: null
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'fail',
+            message: error
+        });
+
+    }
 }
