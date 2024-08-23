@@ -1,4 +1,4 @@
-const { HDNodeWallet } = require('ethers');
+import { HDNodeWallet } from 'ethers';
 // Middleware to validate mnemonic phrase
 
 const validateMnemonic = (req, res, next) => {
@@ -15,4 +15,4 @@ const validateMnemonic = (req, res, next) => {
 }
 
 
-module.exports = validateMnemonic;
+export default validateMnemonic;

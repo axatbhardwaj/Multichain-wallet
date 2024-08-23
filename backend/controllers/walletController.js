@@ -1,9 +1,9 @@
-const walletModel = require('../models/walletModel');
-const accountModel = require('../models/accountModel');
-const { createKeyPair } = require('../services/walletService');
+import walletModel from '../models/walletModel.js';
+import accountModel from '../models/accountModel.js';
+import createKeyPair from '../services/walletService.js';
 
 // Create a new wallet
-exports.createWallet = async (req, res) => {
+const createWallet = async (req, res) => {
     try {
         const generatedWallet = await createKeyPair();
 
@@ -36,17 +36,17 @@ exports.createWallet = async (req, res) => {
         console.log(error);
         res.status(500).json({
             status: 'fail',
-            message: error
+            message: error.message
         });
     }
 }
 
-//return the wallet and its accounts
-exports.getWallet = async (req, res) => {
+// Return the wallet and its accounts
+const getWallet = async (req, res) => {
     try {
         const { mnemonicPhrase } = req.params;
 
-        const wallet = await walletModel.findOne({ mnemonicPhrase: address });
+        const wallet = await walletModel.findOne({ mnemonicPhrase: mnemonicPhrase });
 
         res.status(200).json({
             status: 'success',
@@ -58,12 +58,12 @@ exports.getWallet = async (req, res) => {
         console.log(error);
         res.status(500).json({
             status: 'fail',
-            message: error
+            message: "cannot create a wallet"
         });
     }
 }
 
-exports.importWallet = async (req, res) => {
+const importWallet = async (req, res) => {
     try {
         const { mnemonicPhrase } = req.body;
 
@@ -93,20 +93,19 @@ exports.importWallet = async (req, res) => {
         console.log(error);
         res.status(500).json({
             status: 'fail',
-            message: error
+            message: ""
         });
     }
 }
 
-exports.addAccount = async (req, res) => {
+const addAccount = async (req, res) => {
     try {
-
         const { mnemonicPhrase } = req.body;
 
         const wallet = await walletModel.findOne({ mnemonicPhrase: mnemonicPhrase });
         const numberOfAccounts = wallet.numberOfAccounts;
 
-        // fist account is at index 0
+        // First account is at index 0
         const index = numberOfAccounts;
 
         const newAccount = await createKeyPair(mnemonicPhrase, index);
@@ -136,13 +135,12 @@ exports.addAccount = async (req, res) => {
         console.log(error);
         res.status(500).json({
             status: 'fail',
-            message: error
+            message: error.message
         });
     }
 }
 
-
-exports.deleteWallet = async (req, res) => {
+const deleteWallet = async (req, res) => {
     try {
         const { mnemonicPhrase } = req.body;
 
@@ -156,8 +154,10 @@ exports.deleteWallet = async (req, res) => {
         console.log(error);
         res.status(500).json({
             status: 'fail',
-            message: error
+            message: error.message
         });
-
     }
 }
+
+// Ensure addAccount is included in the exports
+export { createWallet, getWallet, importWallet, addAccount, deleteWallet }; 

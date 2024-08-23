@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const accountSchema = new mongoose.Schema({
     address: {
@@ -13,7 +13,7 @@ const accountSchema = new mongoose.Schema({
         type: String,
         required: [true, 'An account must have a private key']
     }
-})
+});
 
-const account = mongoose.model('Account', accountSchema);
-module.exports = account;
+const accountModel = mongoose.model('Account', accountSchema);
+export default accountModel;
