@@ -1,12 +1,12 @@
 import { Schema, model } from "mongoose";
-import accountModel from "../models/accountModel.js";
+import { accountSchema } from "../models/accountModel.js";
 const walletSchema = new Schema({
   numberofaccounts: {
     type: Number,
     required: [true, "A wallet must have at least one account"],
   },
   accounts: {
-    type: [accountModel],
+    type: [accountSchema],
     required: [true, "A wallet must have at least one account"],
   },
   mnemonicPhrase: {

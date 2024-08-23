@@ -2,7 +2,8 @@ import app from './app.js';
 import connectDB from './config/config.js';
 
 //connect to database
-connectDB();
+
+await connectDB();
 
 
 app.listen(3000, () => {
