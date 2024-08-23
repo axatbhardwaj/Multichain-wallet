@@ -16,5 +16,4 @@ const accountSchema = new mongoose.Schema({
 });
 
 const accountModel = mongoose.model('Account', accountSchema);
-export { accountSchema }
 export default accountModel;

@@ -1,6 +1,6 @@
 import walletModel from '../models/walletModel.js';
 import accountModel from '../models/accountModel.js';
-import createKeyPair from '../services/walletService.js';
+import { createKeyPair, getBalanceRpc } from '../services/walletService.js';
 
 // Create a new wallet
 const createWallet = async (req, res) => {
@@ -12,17 +12,25 @@ const createWallet = async (req, res) => {
         const privateKey = generatedWallet.privateKey;
         const mnemonicPhrase = generatedWallet.mnemonicPhrase;
 
+        console.log("address: ", address, "publicKey: ", publicKey, "privateKey: ", privateKey, "mnemonicPhrase: ", mnemonicPhrase
+        );
+
         const account = await accountModel.create({
             address: address,
-            publicKey: publicKey,
-            privateKey: privateKey
+            publickey: publicKey,
+            privatekey: privateKey
         });
 
+        const saveAccount = await account.save();
+
         const newWallet = await walletModel.create({
-            numberOfAccounts: 1,
-            accounts: [account._id],
+            numberOfAccounts: 50,
+            accounts: account._id,
             mnemonicPhrase: mnemonicPhrase
         });
+
+        console.log("newWallet: ", newWallet);
+
 
         await newWallet.save();
 
@@ -75,6 +83,8 @@ const importWallet = async (req, res) => {
             privateKey: importedWallet.privateKey
         });
 
+        const saveAccount = await account.save();
+
         const newWallet = await walletModel.create({
             numberOfAccounts: 1,
             accounts: [account._id],
@@ -116,9 +126,11 @@ const addAccount = async (req, res) => {
 
         const account = await accountModel.create({
             address: address,
-            publicKey: publicKey,
-            privateKey: privateKey
+            publickey: publicKey,
+            privatekey: privateKey
         });
+
+        const saveAccount = await account.save();
 
         const walletM = await walletModel.findOneAndUpdate({ mnemonicPhrase: mnemonicPhrase }, {
             $inc: { numberOfAccounts: 1 },
@@ -145,6 +157,7 @@ const deleteWallet = async (req, res) => {
         const { mnemonicPhrase } = req.body;
 
         const deleteWallet = await walletModel.findOneAndDelete({ mnemonicPhrase: mnemonicPhrase });
+        const deleteAssocatedAccounts = await accountModel.deleteMany({ _id: { $in: deleteWallet.accounts } });
 
         res.status(204).json({
             status: 'success',
@@ -159,5 +172,26 @@ const deleteWallet = async (req, res) => {
     }
 }
 
+const getBalance = async (req, res) => {
+    try {
+        const { address } = req.params;
+
+        const balance = await getBalanceRpc(address);
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                balance: balance
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+}
+
 // Ensure addAccount is included in the exports
-export { createWallet, getWallet, importWallet, addAccount, deleteWallet }; 
+export { createWallet, getWallet, importWallet, addAccount, deleteWallet, getBalance };

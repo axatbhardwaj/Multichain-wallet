@@ -1,4 +1,7 @@
-import { HDNodeWallet } from "ethers";
+import { ethers } from "ethers";
+
+const HDNodeWallet = ethers.HDNodeWallet;
+const rpcUrl = process.env.RPC_URL;
 
 async function createKeyPair(mnemonicPhrase, index = 0) {
   let wallet;
@@ -25,6 +28,13 @@ async function createKeyPair(mnemonicPhrase, index = 0) {
   };
 }
 
-export default {
-  createKeyPair,
-};
+async function getBalanceRpc(address) {
+
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
+  let balance = await provider.getBalance(address);
+  balance = ethers.formatEther(balance);
+  // console.log(balance);
+  return balance;
+}
+
+export { createKeyPair, getBalanceRpc };
